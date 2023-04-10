@@ -1,0 +1,26 @@
+version: v1.0
+name: Docker
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Docker build
+    task:
+      jobs:
+        - name: Build drkiq
+          commands:
+            - 'docker pull $DOCKER_USERNAME/dockerizing-ruby-drkiq:latest || true'
+            - 'docker build -t $DOCKER_USERNAME/dockerizing-ruby-drkiq:latest --cache-from=$DOCKER_USERNAME/dockerizing-ruby-drkiq:latest -f Dockerfile.production .'
+            - 'docker push $DOCKER_USERNAME/dockerizing-ruby-drkiq:latest'
+      secrets:
+        - name: dockerhub
+      prologue:
+        commands:
+          - checkout
+          - 'echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin'
+  - name: 'Block #2'
+    task:
+      jobs:
+        - name: 'Job #1'
+          commands: []
